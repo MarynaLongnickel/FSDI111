@@ -104,6 +104,38 @@ def get_user(user_id):
     user_data = {"id": user.id, "username": user.username}
     return user_data['username']
 
+# Update user
+@app.put('/api/users/<user_id>')
+def update_user(user_id):
+    data = request.get_json()
+    new_username = data.get("username")
+    new_password = data.get("password")
+
+    user = session.query(User).filter_by(id=user_id).first()
+    if not user:
+        return jsonify({"message": "User not found"}), 404
+    
+    if new_username:
+        user.username = new_username
+        
+    if new_password:
+        user.password = new_password
+
+    session.commit() # commit to DB
+    return jsonify({"message": "Updated user."}), 200
+
+# Delete user
+@app.delete('/api/users/<user_id>')
+def delete_user(user_id):
+    user = session.query(User).filter_by(id=user_id).first()
+    if not user:
+        return jsonify({"message": "User not found"}), 404
+    
+    session.delete(user)
+    session.commit() # commit to DB
+    return jsonify({"message": "Deleted user."}), 200
+
+
 # Ensures the server runs ony when this script is executed directly
 if __name__ == "__main__":
     app.run(debug=True)
