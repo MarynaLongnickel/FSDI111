@@ -29,8 +29,6 @@ class User(Base):
     password = Column(String(300), nullable=False)
     expenses = relationship('Expense', back_populates='user') # user.expenses, list all
 
-# {"username": "Marina", "password": "123abc", "expenses": NaN}
-
 class Expense(Base):
     __tablename__ = "expenses"
     id = Column(Integer, primary_key=True)
@@ -47,13 +45,11 @@ Base.metadata.create_all(engine)
 
 # Health check route
 @app.get('/api/health')
-
 def health_check():
     return jsonify({"status": "ok"}), 200
 
 # User routes
 @app.post('/api/register')
-
 def register():
     data = request.get_json()
     username = data.get('username').lower().strip()  # normalize
@@ -91,8 +87,6 @@ def login():
         return jsonify({"message": "Login successful."}), 200
     else: 
         return jsonify({"message": "Wrong password."}), 401
-
-    return 'login'
 
 # Get user by id
 @app.get('/api/users/<user_id>')
@@ -135,6 +129,72 @@ def delete_user(user_id):
     session.commit() # commit to DB
     return jsonify({"message": "Deleted user."}), 200
 
+# -----------------------------------------------------------
+
+# Expense routes
+@app.post('/api/expenses')
+def add_expense():
+    data = request.get_json()
+    title = data.get("title")
+    description = data.get("description")
+    amount = data.get("amount")
+    category = data.get("category")
+    user_id = data.get("user_id")
+
+    # Validate category
+    categories = {'food', 'education', 'entertainment'}
+
+    if category.lower() not in categories:
+        return jsonify({"error": f"Invalid category {category}"}), 400
+
+    new_expense = Expense(title=title,
+                          description=description,
+                          amount=amount,
+                          category=category,
+                          user_id=user_id)
+    session.add(new_expense)
+    session.commit()
+
+    return jsonify({"message": "Added an expense."}), 200
+
+# Update expense
+@app.put('/api/expenses/<expense_id>')
+def update_expense(expense_id):
+    data = request.get_json()
+
+    expense = session.query(Expense).filter_by(id=expense_id).first()
+    if not expense:
+        return jsonify({"message": "Expense not found"}), 404
+
+    # Update only provided fields
+    if "title" in data:
+        expense.title = data["title"]
+    if "description" in data:
+        expense.description = data["description"]
+    if "amount" in data:
+        expense.amount = data["amount"]
+    if "category" in data:
+        categories = {'food', 'education', 'entertainment'}
+        if data["category"].lower() not in categories:
+            return jsonify({"error": f"Invalid category {data['category']}"}), 400
+        expense.category = data["category"]
+    if "user_id" in data:
+        expense.user_id = data["user_id"]
+
+    session.commit()
+    return jsonify({"message": "Updated expense."}), 200
+
+
+# Delete expense
+@app.delete('/api/expenses/<expense_id>')
+def delete_expense(expense_id):
+    expense = session.query(Expense).filter_by(id=expense_id).first()
+    if not expense:
+        return jsonify({"message": "Expense not found"}), 404
+
+    session.delete(expense)
+    session.commit()
+    return jsonify({"message": "Deleted expense."}), 200
 
 # Ensures the server runs ony when this script is executed directly
 if __name__ == "__main__":
