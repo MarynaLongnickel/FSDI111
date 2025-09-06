@@ -94,6 +94,16 @@ def login():
 
     return 'login'
 
+# Get user by id
+@app.get('/api/users/<user_id>')
+def get_user(user_id):
+    user = session.query(User).filter_by(id=user_id).first()
+    if not user:
+        return jsonify({"message": "User not found"}), 404
+    
+    user_data = {"id": user.id, "username": user.username}
+    return user_data['username']
+
 # Ensures the server runs ony when this script is executed directly
 if __name__ == "__main__":
     app.run(debug=True)
