@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1 class="mb-4 text-center text-primary">Students List</h1>
+
+{% if students %}
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    {% for student in students %}
+    <div class="col">
+        <div class="card h-100 shadow-sm border-primary">
+            <div class="card-body">
+                <h5 class="card-title text-success">{{ student.name }}</h5>
+                <p class="card-text"><strong>Age:</strong> {{ student.age }}</p>
+                <p class="card-text"><strong>Cohort:</strong> CH# {{ student.cohort }}</p>
+                <p class="card-text"><strong>Year:</strong> {{ student.year }}</p>
+            </div>
+            <div class="card-footer text-center">
+                <a href="{{ url_for('about', student_id=student.id) }}" class="btn btn-sm btn-outline-primary">View Profile</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="alert alert-warning text-center">
+    No students found.
+</div>
+{% endif %}
+{% endblock content %}

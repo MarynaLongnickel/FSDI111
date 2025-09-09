@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="text-center py-5">
+    <h1 class="display-4 mb-3">Welcome to the Final Report Portal</h1>
+    <p class="lead">Explore information about our students, cohorts, and more!</p>
+    <a href="{{ url_for('students_list') }}" class="btn btn-primary btn-lg mt-3">View Students List</a>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Quick Stats</h5>
+                <p class="card-text">Number of students: {{ students|length if students else "N/A" }}</p>
+                <p class="card-text">Current Cohort Year: {{ current_year if current_year else "2025" }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Announcements</h5>
+                <ul>
+                    <li>New cohort starting next month</li>
+                    <li>Project submissions due soon</li>
+                    <li>Check out the updated student portal</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
